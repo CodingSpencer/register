@@ -6,6 +6,10 @@ const form = document.querySelector("#submitButton");
 
 const participantList = document.querySelector("#participants");
 
+const participantArray = [];
+
+const summary = document.querySelector("#summary");
+
 function totalFees() {
   // the selector below lets us grab any element that has an id that begins with "fee"
   let feeElements = document.querySelectorAll("[id^=participant][id$=fee]");
@@ -74,9 +78,9 @@ function participantTemplate(count) {
     </section>`;
 }
 
-function submitForm(event) {
-  event.preventDefault();
-}
+// function submitForm(event) {
+//   event.preventDefault();
+// }
 
 function successTemplate(info) {
   return `
@@ -88,10 +92,9 @@ addButton.addEventListener("click", function () {
   const newParticipant = participantTemplate(participants);
   addButton.insertAdjacentHTML("beforebegin", newParticipant);
 
-  newParticipant.querySelector("[id]").forEach((element) => {
-    const old = element.id;
-    const newID = old + participants;
-    element.id = newID;
+  participantArray.push({
+    id: participants,
+    name: document.querySelector("#fname").value,
   });
 });
 
@@ -100,18 +103,13 @@ form.addEventListener("click", function (event) {
 
   const total = totalFees();
 
-  participants.forEach((index) => {
-    const participantSect = document.querySelector(`.participant${index}`);
-    const info = {
-      name: participantSect.querySelector("#fname").value,
-      participants: participants,
-      totalFees: totalFees,
-    };
+  participantArray.forEach((person) => {
+    summary.innerHTML += successTemplate({
+      name: person.name,
+      participants: participantArray.length,
+      totalFees: total,
+    });
+    // summary.hidden = false;
+    // form.hidden = true;
   });
-
-  const summary = document.querySelector("#summary");
-  summary.innerHTML += successTemplate(info);
-
-  summary.hidden = false;
-  form.hidden = true;
 });
