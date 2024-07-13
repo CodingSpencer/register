@@ -1,30 +1,17 @@
-let participants = 1;
-
+let participants = 0;
 const addButton = document.querySelector("#add");
-
 const form = document.querySelector("#submitButton");
-
 const participantList = document.querySelector("#participants");
-
 const participantArray = [];
-
 const summary = document.querySelector("#summary");
 
 function totalFees() {
-  // the selector below lets us grab any element that has an id that begins with "fee"
-  let feeElements = document.querySelectorAll("[id^=participant][id$=fee]");
-  console.log(feeElements);
-  // querySelectorAll returns a NodeList. It's like an Array, but not exactly the same.
-  // The line below is an easy way to convert something that is list-like to an actual Array so we can use all of the helpful Array methods...like reduce
-  // The "..." is called the spread operator. It "spreads" apart the list, then the [] we wrapped it in inserts those list items into a new Array.
+  let feeElements = document.querySelectorAll("[id^=fee]");
   feeElements = [...feeElements];
-  // sum up all of the fees. Something like Array.reduce() could be very helpful here :) Or you could use a Array.forEach() as well.
-  // Remember that the text that was entered into the input element will be found in the .value of the element.
-  reducedFees = feeElements.reduce((accumulator, currentElement) => {
-    const fee = parseFloat(currentElement.value);
+  const reducedFees = feeElements.reduce((accumulator, currentElement) => {
+    const fee = parseFloat(currentElement.value) || 0;
     return accumulator + fee;
   }, 0);
-  // once you have your total make sure to return it!
   return reducedFees;
 }
 
@@ -34,16 +21,7 @@ function participantTemplate(count) {
       <p>Participant ${count}</p>
       <div class="item">
         <label for="fname${count}"> First Name<span>*</span></label>
-        <input id="fname${count}" type="text" name="fname" value="" required="" />
-        <div
-          data-lastpass-icon-root=""
-          style="
-            position: relative !important;
-            height: 0px !important;
-            width: 0px !important;
-            float: left !important;
-          "
-        ></div>
+        <input id="fname${count}" type="text" name="fname" value="" required />
       </div>
       <div class="item activities">
         <label for="activity${count}">Activity #<span>*</span></label>
@@ -60,7 +38,7 @@ function participantTemplate(count) {
       <div class="item">
         <p>Grade</p>
         <select>
-          <option selected="" value="" disabled=""></option>
+          <option selected disabled></option>
           <option value="1">1st</option>
           <option value="2">2nd</option>
           <option value="3">3rd</option>
@@ -78,30 +56,30 @@ function participantTemplate(count) {
     </section>`;
 }
 
-// function submitForm(event) {
-//   event.preventDefault();
-// }
-
 function successTemplate(info) {
   return `
-  <p>Thank you ${info.name} for registering! You have registered ${info.participants} and owe $${info.totalFees}.</p>`;
+    <p>Thank you ${info.name} for registering! You have registered ${info.participants} and owe $${info.totalFees}.</p>`;
 }
 
 addButton.addEventListener("click", function () {
   participants++;
   const newParticipant = participantTemplate(participants);
-  addButton.insertAdjacentHTML("beforebegin", newParticipant);
+  participantList.insertAdjacentHTML("beforeend", newParticipant);
 
+  const fnameInput = document.querySelector(`#fname${participants}`);
   participantArray.push({
     id: participants,
-    name: document.querySelector("#fname").value,
+    name: fnameInput.value,
   });
 });
 
-form.addEventListener("click", function (event) {
+form.addEventListener("submit", function (event) {
   event.preventDefault();
 
   const total = totalFees();
+
+  // Clear previous content in summary
+  summary.innerHTML = "";
 
   participantArray.forEach((person) => {
     summary.innerHTML += successTemplate({
@@ -109,7 +87,5 @@ form.addEventListener("click", function (event) {
       participants: participantArray.length,
       totalFees: total,
     });
-    // summary.hidden = false;
-    // form.hidden = true;
   });
 });
